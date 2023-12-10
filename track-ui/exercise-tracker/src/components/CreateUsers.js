@@ -1,52 +1,64 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { addUsers, getUsers } from './services/api';
 
 const CreateUsers = () => {
-    const [formData, setFormData] = useState({
-        username: '',
-        age: ''
-    });
+    const [users, setUsers] = useState([]);
+    const [username, setUsername] = useState('');
+    const [age, setAge] = useState('');
 
-    const handleInputChange = (event) => {
-        const { name, value } = event.target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
+    useEffect(() => {
+        getUsers()
+            .then(data => setUsers(data))
+            .catch(err => console.log(err));
+    }, []);
+
+    const handleUsernameChange = (e) => {
+        setUsername(e.target.value);
     };
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        // You can perform further actions with the form data here
-        console.log(formData);
-        // Reset the form fields after submission if needed
-        setFormData({
-            username: '',
-            age: ''
-        });
+    const handleAgeChange = (e) => {
+        setAge(e.target.value);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const user = {
+            username: username,
+            age: age,
+        };
+
+        try {
+            const result = await addUsers(user);
+            console.log(result, "submit result");
+            // Perform any additional actions after successful submission
+        } catch (error) {
+            console.error('Error submitting user:', error);
+        }
     };
 
     return (
-        <div>
-            <h2>Create Exercises</h2>
+        <div className='container' style={{ width: '40%' }}>
+            <h3>Create Users</h3>
+            <br />
             <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="username">Username:</label>
+                <div className='form-group'>
+                    <label>Username</label><br />
                     <input
-                        type="text"
-                        id="username"
-                        name="username"
-                        value={formData.username}
-                        onChange={handleInputChange}
+                        type='text'
+                        required
+                        className='form-control'
+                        value={username}
+                        onChange={handleUsernameChange}
                     />
                 </div>
-                <div>
-                    <label htmlFor="age">Age:</label>
+                <div className='form-group'>
+                    <label>Age</label><br />
                     <input
-                        type="number"
-                        id="age"
-                        name="age"
-                        value={formData.age}
-                        onChange={handleInputChange}
+                        type='number'
+                        required
+                        className='form-control'
+                        value={age}
+                        onChange={handleAgeChange}
                     />
                 </div>
                 <button type="submit">Submit</button>
